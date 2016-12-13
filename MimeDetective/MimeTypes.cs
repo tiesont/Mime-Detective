@@ -39,6 +39,7 @@ namespace MimeDetective
         //don't add them to the list, as they will be 'subtypes' of the ZIP type
         public readonly static FileType WORDX = new FileType(new byte?[0], 512, "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         public readonly static FileType EXCELX = new FileType(new byte?[0], 512, "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        public readonly static FileType PPTX = new FileType(new byte?[0], 512, "pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
         public readonly static FileType ODT = new FileType(new byte?[0], 512, "odt", "application/vnd.oasis.opendocument.text");
         public readonly static FileType ODS = new FileType(new byte?[0], 512, "ods", "application/vnd.oasis.opendocument.spreadsheet");
 
@@ -278,7 +279,7 @@ namespace MimeDetective
                         // there may be situations where the file name is not given
                         // or it is unpracticable to write a temp file to get the FileInfo
                         if (type.Equals(ZIP) && !String.IsNullOrEmpty(fileFullName))
-                            fileType = CheckForDocxAndXlsx(type, fileFullName);
+                            fileType = CheckForDocxXlsxAndPptx(type, fileFullName);
                         else
                             fileType = type;    // if all the bytes match, return the type
 
@@ -346,7 +347,7 @@ namespace MimeDetective
             return result;
         }
 
-        private static FileType CheckForDocxAndXlsx(FileType type, string fileFullName)
+        private static FileType CheckForDocxXlsxAndPptx(FileType type, string fileFullName)
         {
             FileType result = null;
 
@@ -357,6 +358,8 @@ namespace MimeDetective
                     result = WORDX;
                 else if (zipFile.Entries.Any(e => e.FullName.StartsWith("xl/")))
                     result = EXCELX;
+                else if (zipFile.Entries.Any(e => e.FullName.StartsWith("ppt/")))
+                    result = PPTX;
                 else
                     result = CheckForOdtAndOds(result, zipFile);
             }
