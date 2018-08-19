@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MimeDetective
+﻿namespace MimeDetective
 {
     /// <summary>
     /// Little data structure to hold information about file types. 
@@ -63,7 +61,7 @@ namespace MimeDetective
 
             FileType otherType = (FileType)other;
 
-            if (this.Extension == otherType.Extension && this.Mime == otherType.Mime) return true;
+            if (Extension == otherType.Extension && Mime == otherType.Mime) return true;
 
             return base.Equals(other);
         }

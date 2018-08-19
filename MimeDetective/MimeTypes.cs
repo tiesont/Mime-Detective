@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MimeDetective
 {
@@ -160,6 +159,7 @@ namespace MimeDetective
        
         #endregion
 
+
         #region Main Methods
 
         public static void SaveToXmlFile(string path)
@@ -178,7 +178,9 @@ namespace MimeDetective
                 var serializer = new System.Xml.Serialization.XmlSerializer(types.GetType());
                 List<FileType> tmpTypes = (List<FileType>)serializer.Deserialize(file);
                 foreach (var type in tmpTypes)
+                {
                     types.Add(type);
+                }
             }
         }
 
@@ -222,12 +224,14 @@ namespace MimeDetective
                     stream.Seek(0, SeekOrigin.Begin);
                     stream.CopyTo(fileStream);
                 }
+
                 fileType = GetFileType(new FileInfo(fileName));
             }
             finally
             {
                 File.Delete(fileName);
             }
+
             return fileType;
         }
 
@@ -278,7 +282,7 @@ namespace MimeDetective
                         // check for docx and xlsx only if a file name is given
                         // there may be situations where the file name is not given
                         // or it is unpracticable to write a temp file to get the FileInfo
-                        if (type.Equals(ZIP) && !String.IsNullOrEmpty(fileFullName))
+                        if (type.Equals(ZIP) && !string.IsNullOrEmpty(fileFullName))
                             fileType = CheckForDocxXlsxAndPptx(type, fileFullName);
                         else
                             fileType = type;    // if all the bytes match, return the type
@@ -287,6 +291,7 @@ namespace MimeDetective
                     }
                 }
             }
+
             return fileType;
         }
 
@@ -298,7 +303,7 @@ namespace MimeDetective
         /// <returns>
         ///   <c>true</c> if file of the one of the provided types; otherwise, <c>false</c>.
         /// </returns>
-        public static bool isFileOfTypes(this FileInfo file, List<FileType> requiredTypes)
+        public static bool IsFileOfTypes(this FileInfo file, List<FileType> requiredTypes)
         {
             FileType currentType = file.GetFileType();
 
@@ -312,18 +317,18 @@ namespace MimeDetective
 
         /// <summary>
         /// Determines whether provided file belongs to one of the provided list of files,
-        /// where list of files provided by string with Comma-Separated-Values of extensions
+        /// where list of files provided by string with comma-separated-values of extensions
         /// </summary>
         /// <param name="file">The file.</param>
         /// <param name="requiredTypes">The required types.</param>
         /// <returns>
         ///   <c>true</c> if file of the one of the provided types; otherwise, <c>false</c>.
         /// </returns>
-        public static bool isFileOfTypes(this FileInfo file, String CSV)
+        public static bool IsFileOfTypes(this FileInfo file, string CSV)
         {
             List<FileType> providedTypes = GetFileTypesByExtensions(CSV);
 
-            return file.isFileOfTypes(providedTypes);
+            return file.IsFileOfTypes(providedTypes);
         }
 
         /// <summary>
@@ -331,9 +336,9 @@ namespace MimeDetective
         /// </summary>
         /// <param name="CSV">The CSV String with extensions</param>
         /// <returns>List of FileTypes</returns>
-        private static List<FileType> GetFileTypesByExtensions(String CSV)
+        private static List<FileType> GetFileTypesByExtensions(string CSV)
         {
-            String[] extensions = CSV.ToUpper().Replace(" ", "").Split(',');
+            string[] extensions = CSV.ToUpper().Replace(" ", "").Split(',');
 
             List<FileType> result = new List<FileType>();
 
@@ -344,6 +349,7 @@ namespace MimeDetective
                     result.Add(type);
                 }
             }
+
             return result;
         }
 
@@ -363,6 +369,7 @@ namespace MimeDetective
                 else
                     result = CheckForOdtAndOds(result, zipFile);
             }
+
             return result;
         }
 
@@ -413,9 +420,9 @@ namespace MimeDetective
         /// </summary>
         /// <param name="file">The file to work with</param>
         /// <returns>Array of bytes</returns>
-        private static Byte[] ReadFileHeader(FileInfo file, int MaxHeaderSize)
+        private static byte[] ReadFileHeader(FileInfo file, int MaxHeaderSize)
         {
-            Byte[] header = new byte[MaxHeaderSize];
+            byte[] header = new byte[MaxHeaderSize];
             try  // read file
             {
                 using (FileStream fsSource = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
@@ -432,10 +439,11 @@ namespace MimeDetective
 
             return header;
         }
+
         #endregion
 
-        #region isType functions
 
+        #region isType functions
 
         /// <summary>
         /// Determines whether the specified file is of provided type
@@ -502,6 +510,7 @@ namespace MimeDetective
             // MSI has a generic DOCFILE header. Also it matches PPT files
             return fileInfo.IsType(PPT) || fileInfo.IsType(MSDOC);
         }
+
         #endregion
     }
 }
