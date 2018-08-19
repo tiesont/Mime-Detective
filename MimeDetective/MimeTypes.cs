@@ -39,6 +39,7 @@ namespace MimeDetective
         //don't add them to the list, as they will be 'subtypes' of the ZIP type
         public readonly static FileType WORDX = new FileType(new byte?[0], 512, "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         public readonly static FileType EXCELX = new FileType(new byte?[0], 512, "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        public readonly static FileType PPTX = new FileType(new byte?[0], 512, "pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
         public readonly static FileType ODT = new FileType(new byte?[0], 512, "odt", "application/vnd.oasis.opendocument.text");
         public readonly static FileType ODS = new FileType(new byte?[0], 512, "ods", "application/vnd.oasis.opendocument.spreadsheet");
 
@@ -66,12 +67,12 @@ namespace MimeDetective
         public readonly static FileType JPEG = new FileType(new byte?[] { 0xFF, 0xD8, 0xFF }, "jpg", "image/jpeg");
         public readonly static FileType PNG = new FileType(new byte?[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }, "png", "image/png");
         public readonly static FileType GIF = new FileType(new byte?[] { 0x47, 0x49, 0x46, 0x38, null, 0x61 }, "gif", "image/gif");
-        public readonly static FileType BMP = new FileType(new byte?[] { 66, 77 }, "bmp", "image/gif");
+        public readonly static FileType BMP = new FileType(new byte?[] { 0x42, 0x4D }, "bmp", "image/bmp"); // or image/x-windows-bmp
         public readonly static FileType ICO = new FileType(new byte?[] { 0, 0, 1, 0 }, "ico", "image/x-icon");
-
+        //tiff
+        
         #endregion
 
-        //bmp, tiff
         #region Zip, 7zip, rar, dll_exe, tar, bz2, gz_tgz
 
         public readonly static FileType GZ_TGZ = new FileType(new byte?[] { 0x1F, 0x8B, 0x08 }, "gz, tgz", "application/x-gz");
@@ -278,7 +279,7 @@ namespace MimeDetective
                         // there may be situations where the file name is not given
                         // or it is unpracticable to write a temp file to get the FileInfo
                         if (type.Equals(ZIP) && !String.IsNullOrEmpty(fileFullName))
-                            fileType = CheckForDocxAndXlsx(type, fileFullName);
+                            fileType = CheckForDocxXlsxAndPptx(type, fileFullName);
                         else
                             fileType = type;    // if all the bytes match, return the type
 
@@ -346,7 +347,7 @@ namespace MimeDetective
             return result;
         }
 
-        private static FileType CheckForDocxAndXlsx(FileType type, string fileFullName)
+        private static FileType CheckForDocxXlsxAndPptx(FileType type, string fileFullName)
         {
             FileType result = null;
 
@@ -357,6 +358,8 @@ namespace MimeDetective
                     result = WORDX;
                 else if (zipFile.Entries.Any(e => e.FullName.StartsWith("xl/")))
                     result = EXCELX;
+                else if (zipFile.Entries.Any(e => e.FullName.StartsWith("ppt/")))
+                    result = PPTX;
                 else
                     result = CheckForOdtAndOds(result, zipFile);
             }
